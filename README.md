@@ -27,79 +27,77 @@ end
 ## Usage
 
 ```elixir
-alias Sashite.Pin.Identifier
-
 # Parse PIN strings
-{:ok, identifier} = Identifier.parse("K")
-identifier.type      # => :K
-identifier.side      # => :first
-identifier.state     # => :normal
-identifier.terminal  # => false
+{:ok, pin} = Sashite.Pin.parse("K")
+pin.type      # => :K
+pin.side      # => :first
+pin.state     # => :normal
+pin.terminal  # => false
 
-Identifier.to_string(identifier)  # => "K"
+Sashite.Pin.to_string(pin)  # => "K"
 
 # Parse with pattern matching
-{:ok, king} = Identifier.parse("K^")      # Terminal king
-{:ok, rook} = Identifier.parse("+R")      # Enhanced rook
-{:ok, pawn} = Identifier.parse("-p")      # Diminished second player pawn
+{:ok, king} = Sashite.Pin.parse("K^")      # Terminal king
+{:ok, rook} = Sashite.Pin.parse("+R")      # Enhanced rook
+{:ok, pawn} = Sashite.Pin.parse("-p")      # Diminished second player pawn
 
 # Bang version for direct access
-identifier = Identifier.parse!("K")
+pin = Sashite.Pin.parse!("K")
 
 # Create identifiers directly
-identifier = Identifier.new(:K, :first)
-identifier = Identifier.new(:K, :first, :enhanced)
-identifier = Identifier.new(:K, :first, :normal, terminal: true)
+pin = Sashite.Pin.new(:K, :first)
+pin = Sashite.Pin.new(:K, :first, :enhanced)
+pin = Sashite.Pin.new(:K, :first, :normal, terminal: true)
 
 # Validation
-Identifier.valid?("K")        # => true
-Identifier.valid?("+R")       # => true
-Identifier.valid?("K^")       # => true
-Identifier.valid?("invalid")  # => false
+Sashite.Pin.valid?("K")        # => true
+Sashite.Pin.valid?("+R")       # => true
+Sashite.Pin.valid?("K^")       # => true
+Sashite.Pin.valid?("invalid")  # => false
 
 # State transformations (return new structs)
-enhanced = Identifier.enhance(identifier)
-Identifier.to_string(enhanced)  # => "+K"
+enhanced = Sashite.Pin.enhance(pin)
+Sashite.Pin.to_string(enhanced)  # => "+K"
 
-diminished = Identifier.diminish(identifier)
-Identifier.to_string(diminished)  # => "-K"
+diminished = Sashite.Pin.diminish(pin)
+Sashite.Pin.to_string(diminished)  # => "-K"
 
-normalized = Identifier.normalize(enhanced)
-Identifier.to_string(normalized)  # => "K"
+normalized = Sashite.Pin.normalize(enhanced)
+Sashite.Pin.to_string(normalized)  # => "K"
 
 # Side transformation
-flipped = Identifier.flip(identifier)
-Identifier.to_string(flipped)  # => "k"
+flipped = Sashite.Pin.flip(pin)
+Sashite.Pin.to_string(flipped)  # => "k"
 
 # Terminal transformations
-terminal = Identifier.mark_terminal(identifier)
-Identifier.to_string(terminal)  # => "K^"
+terminal = Sashite.Pin.mark_terminal(pin)
+Sashite.Pin.to_string(terminal)  # => "K^"
 
-non_terminal = Identifier.unmark_terminal(terminal)
-Identifier.to_string(non_terminal)  # => "K"
+non_terminal = Sashite.Pin.unmark_terminal(terminal)
+Sashite.Pin.to_string(non_terminal)  # => "K"
 
 # Type transformation
-queen = Identifier.with_type(identifier, :Q)
-Identifier.to_string(queen)  # => "Q"
+queen = Sashite.Pin.with_type(pin, :Q)
+Sashite.Pin.to_string(queen)  # => "Q"
 
 # State queries
-Identifier.normal?(identifier)     # => true
-Identifier.enhanced?(enhanced)     # => true
-Identifier.diminished?(diminished) # => true
+Sashite.Pin.normal?(pin)           # => true
+Sashite.Pin.enhanced?(enhanced)    # => true
+Sashite.Pin.diminished?(diminished) # => true
 
 # Side queries
-Identifier.first_player?(identifier)  # => true
-Identifier.second_player?(flipped)    # => true
+Sashite.Pin.first_player?(pin)     # => true
+Sashite.Pin.second_player?(flipped) # => true
 
 # Terminal queries
-Identifier.terminal?(terminal)  # => true
+Sashite.Pin.terminal?(terminal)  # => true
 
 # Comparison
-king1 = Identifier.parse!("K")
-king2 = Identifier.parse!("k")
+king1 = Sashite.Pin.parse!("K")
+king2 = Sashite.Pin.parse!("k")
 
-Identifier.same_type?(king1, king2)  # => true
-Identifier.same_side?(king1, king2)  # => false
+Sashite.Pin.same_type?(king1, king2)  # => true
+Sashite.Pin.same_side?(king1, king2)  # => false
 ```
 
 ## Format Specification
@@ -138,75 +136,75 @@ Identifier.same_side?(king1, king2)  # => false
 ### Parsing
 
 ```elixir
-Identifier.parse(pin_string)   # => {:ok, %Identifier{}} | {:error, reason}
-Identifier.parse!(pin_string)  # => %Identifier{} | raises ArgumentError
-Identifier.valid?(pin_string)  # => boolean
+Sashite.Pin.parse(pin_string)   # => {:ok, %Sashite.Pin{}} | {:error, reason}
+Sashite.Pin.parse!(pin_string)  # => %Sashite.Pin{} | raises ArgumentError
+Sashite.Pin.valid?(pin_string)  # => boolean
 ```
 
 ### Creation
 
 ```elixir
-Identifier.new(type, side)
-Identifier.new(type, side, state)
-Identifier.new(type, side, state, terminal: boolean)
+Sashite.Pin.new(type, side)
+Sashite.Pin.new(type, side, state)
+Sashite.Pin.new(type, side, state, terminal: boolean)
 ```
 
 ### Conversion
 
 ```elixir
-Identifier.to_string(identifier)  # => String.t()
+Sashite.Pin.to_string(pin)  # => String.t()
 ```
 
 ### Transformations
 
-All transformations return new `%Identifier{}` structs:
+All transformations return new `%Sashite.Pin{}` structs:
 
 ```elixir
 # State
-Identifier.enhance(identifier)
-Identifier.diminish(identifier)
-Identifier.normalize(identifier)
+Sashite.Pin.enhance(pin)
+Sashite.Pin.diminish(pin)
+Sashite.Pin.normalize(pin)
 
 # Side
-Identifier.flip(identifier)
+Sashite.Pin.flip(pin)
 
 # Terminal
-Identifier.mark_terminal(identifier)
-Identifier.unmark_terminal(identifier)
+Sashite.Pin.mark_terminal(pin)
+Sashite.Pin.unmark_terminal(pin)
 
 # Attribute changes
-Identifier.with_type(identifier, new_type)
-Identifier.with_side(identifier, new_side)
-Identifier.with_state(identifier, new_state)
-Identifier.with_terminal(identifier, boolean)
+Sashite.Pin.with_type(pin, new_type)
+Sashite.Pin.with_side(pin, new_side)
+Sashite.Pin.with_state(pin, new_state)
+Sashite.Pin.with_terminal(pin, boolean)
 ```
 
 ### Queries
 
 ```elixir
 # State
-Identifier.normal?(identifier)
-Identifier.enhanced?(identifier)
-Identifier.diminished?(identifier)
+Sashite.Pin.normal?(pin)
+Sashite.Pin.enhanced?(pin)
+Sashite.Pin.diminished?(pin)
 
 # Side
-Identifier.first_player?(identifier)
-Identifier.second_player?(identifier)
+Sashite.Pin.first_player?(pin)
+Sashite.Pin.second_player?(pin)
 
 # Terminal
-Identifier.terminal?(identifier)
+Sashite.Pin.terminal?(pin)
 
 # Comparison
-Identifier.same_type?(id1, id2)
-Identifier.same_side?(id1, id2)
-Identifier.same_state?(id1, id2)
-Identifier.same_terminal?(id1, id2)
+Sashite.Pin.same_type?(pin1, pin2)
+Sashite.Pin.same_side?(pin1, pin2)
+Sashite.Pin.same_state?(pin1, pin2)
+Sashite.Pin.same_terminal?(pin1, pin2)
 ```
 
 ## Data Structure
 
 ```elixir
-%Sashite.Pin.Identifier{
+%Sashite.Pin{
   type: :A..:Z,           # Piece type (always uppercase atom)
   side: :first | :second, # Player side
   state: :normal | :enhanced | :diminished,
