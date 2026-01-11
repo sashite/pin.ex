@@ -20,7 +20,7 @@ defmodule Sashite.Pin.MixProject do
       homepage_url: "https://sashite.dev/specs/pin/",
       docs: [
         main: "readme",
-        extras: ["README.md", "LICENSE.md"]
+        extras: ["README.md", "LICENSE"]
       ]
     ]
   end
@@ -50,8 +50,8 @@ defmodule Sashite.Pin.MixProject do
   defp package do
     [
       name: "sashite_pin",
-      files: ~w(lib .formatter.exs mix.exs README.md LICENSE.md),
-      licenses: ["MIT"],
+      files: ~w(lib .formatter.exs mix.exs README.md LICENSE),
+      licenses: ["Apache-2.0"],
       links: %{
         "GitHub" => @source_url,
         "Specification" => "https://sashite.dev/specs/pin/1.0.0/",
