@@ -11,7 +11,7 @@
 /.fetch
 erl_crash.dump
 *.ez
-sashite_snn-*.tar
+*.tar
 
 # Editor
 .elixir_ls/
