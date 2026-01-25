@@ -10,10 +10,10 @@ defmodule Sashite.Pin.IdentifierTest do
   # ===========================================================================
 
   describe "new/4" do
-    test "creates identifier with type and side" do
+    test "creates identifier with abbr and side" do
       pin = Identifier.new(:K, :first)
 
-      assert pin.type == :K
+      assert pin.abbr == :K
       assert pin.side == :first
       assert pin.state == :normal
       assert pin.terminal == false
@@ -22,7 +22,7 @@ defmodule Sashite.Pin.IdentifierTest do
     test "creates identifier with state" do
       pin = Identifier.new(:R, :second, :enhanced)
 
-      assert pin.type == :R
+      assert pin.abbr == :R
       assert pin.side == :second
       assert pin.state == :enhanced
       assert pin.terminal == false
@@ -31,7 +31,7 @@ defmodule Sashite.Pin.IdentifierTest do
     test "creates identifier with terminal" do
       pin = Identifier.new(:K, :first, :normal, terminal: true)
 
-      assert pin.type == :K
+      assert pin.abbr == :K
       assert pin.side == :first
       assert pin.state == :normal
       assert pin.terminal == true
@@ -40,33 +40,33 @@ defmodule Sashite.Pin.IdentifierTest do
     test "creates identifier with all attributes" do
       pin = Identifier.new(:Q, :second, :diminished, terminal: true)
 
-      assert pin.type == :Q
+      assert pin.abbr == :Q
       assert pin.side == :second
       assert pin.state == :diminished
       assert pin.terminal == true
     end
 
-    test "accepts all valid types A-Z" do
-      for type <- ~w(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z)a do
-        pin = Identifier.new(type, :first)
-        assert pin.type == type
+    test "accepts all valid abbrs A-Z" do
+      for abbr <- ~w(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z)a do
+        pin = Identifier.new(abbr, :first)
+        assert pin.abbr == abbr
       end
     end
 
-    test "raises on invalid type" do
-      assert_raise ArgumentError, "type must be an atom from :A to :Z", fn ->
+    test "raises on invalid abbr" do
+      assert_raise ArgumentError, "abbr must be an atom from :A to :Z", fn ->
         Identifier.new(:invalid, :first)
       end
     end
 
-    test "raises on lowercase type symbol" do
-      assert_raise ArgumentError, "type must be an atom from :A to :Z", fn ->
+    test "raises on lowercase abbr symbol" do
+      assert_raise ArgumentError, "abbr must be an atom from :A to :Z", fn ->
         Identifier.new(:k, :first)
       end
     end
 
-    test "raises on string type" do
-      assert_raise ArgumentError, "type must be an atom from :A to :Z", fn ->
+    test "raises on string abbr" do
+      assert_raise ArgumentError, "abbr must be an atom from :A to :Z", fn ->
         Identifier.new("K", :first)
       end
     end
@@ -229,7 +229,7 @@ defmodule Sashite.Pin.IdentifierTest do
       enhanced = Identifier.enhance(pin)
 
       assert enhanced.state == :enhanced
-      assert enhanced.type == :K
+      assert enhanced.abbr == :K
       assert enhanced.side == :first
     end
 
@@ -290,7 +290,7 @@ defmodule Sashite.Pin.IdentifierTest do
       flipped = Identifier.flip(pin)
 
       assert flipped.side == :second
-      assert flipped.type == :K
+      assert flipped.abbr == :K
     end
 
     test "changes second to first" do
@@ -319,35 +319,35 @@ defmodule Sashite.Pin.IdentifierTest do
   # Terminal Transformations
   # ===========================================================================
 
-  describe "mark_terminal/1" do
+  describe "terminal/1" do
     test "returns terminal identifier" do
       pin = Identifier.new(:K, :first)
-      terminal = Identifier.mark_terminal(pin)
+      term = Identifier.terminal(pin)
 
-      assert terminal.terminal == true
+      assert term.terminal == true
     end
 
     test "returns same struct if already terminal" do
       pin = Identifier.new(:K, :first, :normal, terminal: true)
-      terminal = Identifier.mark_terminal(pin)
+      term = Identifier.terminal(pin)
 
-      assert terminal == pin
+      assert term == pin
     end
   end
 
-  describe "unmark_terminal/1" do
+  describe "non_terminal/1" do
     test "returns non-terminal identifier" do
       pin = Identifier.new(:K, :first, :normal, terminal: true)
-      non_terminal = Identifier.unmark_terminal(pin)
+      non_term = Identifier.non_terminal(pin)
 
-      assert non_terminal.terminal == false
+      assert non_term.terminal == false
     end
 
     test "returns same struct if not terminal" do
       pin = Identifier.new(:K, :first)
-      non_terminal = Identifier.unmark_terminal(pin)
+      non_term = Identifier.non_terminal(pin)
 
-      assert non_terminal == pin
+      assert non_term == pin
     end
   end
 
@@ -355,27 +355,27 @@ defmodule Sashite.Pin.IdentifierTest do
   # Attribute Transformations
   # ===========================================================================
 
-  describe "with_type/2" do
-    test "returns identifier with new type" do
+  describe "with_abbr/2" do
+    test "returns identifier with new abbr" do
       pin = Identifier.new(:K, :first)
-      queen = Identifier.with_type(pin, :Q)
+      queen = Identifier.with_abbr(pin, :Q)
 
-      assert queen.type == :Q
+      assert queen.abbr == :Q
       assert queen.side == :first
     end
 
-    test "returns same struct if same type" do
+    test "returns same struct if same abbr" do
       pin = Identifier.new(:K, :first)
-      same = Identifier.with_type(pin, :K)
+      same = Identifier.with_abbr(pin, :K)
 
       assert same == pin
     end
 
-    test "raises on invalid type" do
+    test "raises on invalid abbr" do
       pin = Identifier.new(:K, :first)
 
-      assert_raise ArgumentError, "type must be an atom from :A to :Z", fn ->
-        Identifier.with_type(pin, :invalid)
+      assert_raise ArgumentError, "abbr must be an atom from :A to :Z", fn ->
+        Identifier.with_abbr(pin, :invalid)
       end
     end
   end
@@ -431,9 +431,9 @@ defmodule Sashite.Pin.IdentifierTest do
   describe "with_terminal/2" do
     test "returns identifier with new terminal" do
       pin = Identifier.new(:K, :first)
-      terminal = Identifier.with_terminal(pin, true)
+      term = Identifier.with_terminal(pin, true)
 
-      assert terminal.terminal == true
+      assert term.terminal == true
     end
 
     test "returns same struct if same terminal" do
@@ -529,19 +529,19 @@ defmodule Sashite.Pin.IdentifierTest do
   # Comparison Queries
   # ===========================================================================
 
-  describe "same_type?/2" do
-    test "returns true for same type" do
+  describe "same_abbr?/2" do
+    test "returns true for same abbr" do
       pin1 = Identifier.new(:K, :first)
       pin2 = Identifier.new(:K, :second)
 
-      assert Identifier.same_type?(pin1, pin2) == true
+      assert Identifier.same_abbr?(pin1, pin2) == true
     end
 
-    test "returns false for different type" do
+    test "returns false for different abbr" do
       pin1 = Identifier.new(:K, :first)
       pin2 = Identifier.new(:Q, :first)
 
-      assert Identifier.same_type?(pin1, pin2) == false
+      assert Identifier.same_abbr?(pin1, pin2) == false
     end
   end
 
@@ -605,7 +605,7 @@ defmodule Sashite.Pin.IdentifierTest do
       assert pin1 == pin2
     end
 
-    test "different type makes structs unequal" do
+    test "different abbr makes structs unequal" do
       pin1 = Identifier.new(:K, :first)
       pin2 = Identifier.new(:Q, :first)
 

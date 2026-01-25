@@ -9,17 +9,17 @@ defmodule Sashite.Pin.Parser do
 
       [<state-modifier>]<letter>[<terminal-marker>]
 
-  - **Letter** (`A-Z`, `a-z`): Piece type and side
+  - **Letter** (`A-Z`, `a-z`): Piece name abbreviation and side
   - **State modifier**: `+` (enhanced), `-` (diminished), or none (normal)
   - **Terminal marker**: `^` (terminal piece) or none
 
   ## Examples
 
       iex> Sashite.Pin.Parser.parse("K")
-      {:ok, %{type: :K, side: :first, state: :normal, terminal: false}}
+      {:ok, %{abbr: :K, side: :first, state: :normal, terminal: false}}
 
       iex> Sashite.Pin.Parser.parse("+r")
-      {:ok, %{type: :R, side: :second, state: :enhanced, terminal: false}}
+      {:ok, %{abbr: :R, side: :second, state: :enhanced, terminal: false}}
 
       iex> Sashite.Pin.Parser.parse("")
       {:error, :empty_input}
@@ -40,30 +40,30 @@ defmodule Sashite.Pin.Parser do
   ## Components
 
   The returned map contains:
-  - `:type` - Piece type as uppercase atom (`:A` to `:Z`)
-  - `:side` - Player side (`:first` or `:second`)
+  - `:abbr` - Piece name abbreviation as uppercase atom (`:A` to `:Z`)
+  - `:side` - Piece side (`:first` or `:second`)
   - `:state` - Piece state (`:normal`, `:enhanced`, or `:diminished`)
   - `:terminal` - Terminal status (`true` or `false`)
 
   ## Examples
 
       iex> Sashite.Pin.Parser.parse("K")
-      {:ok, %{type: :K, side: :first, state: :normal, terminal: false}}
+      {:ok, %{abbr: :K, side: :first, state: :normal, terminal: false}}
 
       iex> Sashite.Pin.Parser.parse("k")
-      {:ok, %{type: :K, side: :second, state: :normal, terminal: false}}
+      {:ok, %{abbr: :K, side: :second, state: :normal, terminal: false}}
 
       iex> Sashite.Pin.Parser.parse("+R")
-      {:ok, %{type: :R, side: :first, state: :enhanced, terminal: false}}
+      {:ok, %{abbr: :R, side: :first, state: :enhanced, terminal: false}}
 
       iex> Sashite.Pin.Parser.parse("-p")
-      {:ok, %{type: :P, side: :second, state: :diminished, terminal: false}}
+      {:ok, %{abbr: :P, side: :second, state: :diminished, terminal: false}}
 
       iex> Sashite.Pin.Parser.parse("K^")
-      {:ok, %{type: :K, side: :first, state: :normal, terminal: true}}
+      {:ok, %{abbr: :K, side: :first, state: :normal, terminal: true}}
 
       iex> Sashite.Pin.Parser.parse("+K^")
-      {:ok, %{type: :K, side: :first, state: :enhanced, terminal: true}}
+      {:ok, %{abbr: :K, side: :first, state: :enhanced, terminal: true}}
 
       iex> Sashite.Pin.Parser.parse("")
       {:error, :empty_input}
@@ -136,8 +136,8 @@ defmodule Sashite.Pin.Parser do
   # Length 1: single letter
   defp parse_components(<<byte>>) do
     case classify_byte(byte) do
-      {:letter, type, side} ->
-        {:ok, %{type: type, side: side, state: :normal, terminal: false}}
+      {:letter, abbr, side} ->
+        {:ok, %{abbr: abbr, side: side, state: :normal, terminal: false}}
 
       {:modifier, _} ->
         {:error, :must_contain_one_letter}
@@ -154,12 +154,12 @@ defmodule Sashite.Pin.Parser do
   defp parse_components(<<first, second>>) do
     case {classify_byte(first), classify_byte(second)} do
       # modifier + letter
-      {{:modifier, state}, {:letter, type, side}} ->
-        {:ok, %{type: type, side: side, state: state, terminal: false}}
+      {{:modifier, state}, {:letter, abbr, side}} ->
+        {:ok, %{abbr: abbr, side: side, state: state, terminal: false}}
 
       # letter + terminal
-      {{:letter, type, side}, :terminal} ->
-        {:ok, %{type: type, side: side, state: :normal, terminal: true}}
+      {{:letter, abbr, side}, :terminal} ->
+        {:ok, %{abbr: abbr, side: side, state: :normal, terminal: true}}
 
       # modifier + non-letter
       {{:modifier, _}, _} ->
@@ -182,8 +182,8 @@ defmodule Sashite.Pin.Parser do
   # Length 3: modifier + letter + terminal
   defp parse_components(<<first, second, third>>) do
     case {classify_byte(first), classify_byte(second), classify_byte(third)} do
-      {{:modifier, state}, {:letter, type, side}, :terminal} ->
-        {:ok, %{type: type, side: side, state: state, terminal: true}}
+      {{:modifier, state}, {:letter, abbr, side}, :terminal} ->
+        {:ok, %{abbr: abbr, side: side, state: state, terminal: true}}
 
       {{:modifier, _}, {:letter, _, _}, _} ->
         {:error, :invalid_terminal_marker}
@@ -213,14 +213,14 @@ defmodule Sashite.Pin.Parser do
 
   # Uppercase letters (A-Z: 0x41-0x5A)
   defp classify_byte(byte) when byte >= 0x41 and byte <= 0x5A do
-    type = <<byte>> |> String.to_atom()
-    {:letter, type, :first}
+    abbr = <<byte>> |> String.to_atom()
+    {:letter, abbr, :first}
   end
 
   # Lowercase letters (a-z: 0x61-0x7A)
   defp classify_byte(byte) when byte >= 0x61 and byte <= 0x7A do
-    type = <<byte>> |> String.upcase() |> String.to_atom()
-    {:letter, type, :second}
+    abbr = <<byte>> |> String.upcase() |> String.to_atom()
+    {:letter, abbr, :second}
   end
 
   # Enhanced modifier (+: 0x2B)

@@ -6,24 +6,24 @@ defmodule Sashite.Pin.ConstantsTest do
   doctest Sashite.Pin.Constants
 
   # ===========================================================================
-  # Valid Types
+  # Valid Abbrs
   # ===========================================================================
 
-  describe "valid_types/0" do
+  describe "valid_abbrs/0" do
     test "returns all 26 uppercase letter atoms" do
-      types = Constants.valid_types()
+      abbrs = Constants.valid_abbrs()
 
-      assert length(types) == 26
-      assert :A in types
-      assert :Z in types
-      assert :K in types
+      assert length(abbrs) == 26
+      assert :A in abbrs
+      assert :Z in abbrs
+      assert :K in abbrs
     end
 
     test "returns atoms in alphabetical order" do
-      types = Constants.valid_types()
+      abbrs = Constants.valid_abbrs()
 
-      assert Enum.at(types, 0) == :A
-      assert Enum.at(types, 25) == :Z
+      assert Enum.at(abbrs, 0) == :A
+      assert Enum.at(abbrs, 25) == :Z
     end
   end
 
@@ -90,29 +90,29 @@ defmodule Sashite.Pin.ConstantsTest do
   end
 
   # ===========================================================================
-  # Type Validation
+  # Abbr Validation
   # ===========================================================================
 
-  describe "valid_type?/1" do
+  describe "valid_abbr?/1" do
     test "returns true for valid uppercase atoms A-Z" do
-      assert Constants.valid_type?(:A) == true
-      assert Constants.valid_type?(:K) == true
-      assert Constants.valid_type?(:Z) == true
+      assert Constants.valid_abbr?(:A) == true
+      assert Constants.valid_abbr?(:K) == true
+      assert Constants.valid_abbr?(:Z) == true
     end
 
     test "returns false for lowercase atoms" do
-      assert Constants.valid_type?(:a) == false
-      assert Constants.valid_type?(:k) == false
+      assert Constants.valid_abbr?(:a) == false
+      assert Constants.valid_abbr?(:k) == false
     end
 
     test "returns false for invalid atoms" do
-      assert Constants.valid_type?(:invalid) == false
-      assert Constants.valid_type?(:AA) == false
+      assert Constants.valid_abbr?(:invalid) == false
+      assert Constants.valid_abbr?(:AA) == false
     end
 
     test "returns false for non-atoms" do
-      assert Constants.valid_type?("K") == false
-      assert Constants.valid_type?(75) == false
+      assert Constants.valid_abbr?("K") == false
+      assert Constants.valid_abbr?(75) == false
     end
   end
 

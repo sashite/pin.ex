@@ -10,7 +10,7 @@ defmodule Sashite.Pin do
 
       [<state-modifier>]<letter>[<terminal-marker>]
 
-  - **Letter** (`A-Z`, `a-z`): Piece type and side
+  - **Letter** (`A-Z`, `a-z`): Piece name abbreviation and side
   - **State modifier**: `+` (enhanced), `-` (diminished), or none (normal)
   - **Terminal marker**: `^` (terminal piece) or none
 
@@ -26,7 +26,7 @@ defmodule Sashite.Pin do
   ## Examples
 
       iex> {:ok, pin} = Sashite.Pin.parse("K")
-      iex> pin.type
+      iex> pin.abbr
       :K
       iex> pin.side
       :first
@@ -58,7 +58,7 @@ defmodule Sashite.Pin do
   ## Examples
 
       iex> {:ok, pin} = Sashite.Pin.parse("K")
-      iex> pin.type
+      iex> pin.abbr
       :K
       iex> pin.side
       :first
@@ -68,7 +68,7 @@ defmodule Sashite.Pin do
       false
 
       iex> {:ok, pin} = Sashite.Pin.parse("+r")
-      iex> pin.type
+      iex> pin.abbr
       :R
       iex> pin.side
       :second
@@ -100,7 +100,7 @@ defmodule Sashite.Pin do
       {:ok, components} ->
         identifier =
           Identifier.new(
-            components.type,
+            components.abbr,
             components.side,
             components.state,
             terminal: components.terminal
@@ -119,7 +119,7 @@ defmodule Sashite.Pin do
   ## Examples
 
       iex> pin = Sashite.Pin.parse!("K")
-      iex> pin.type
+      iex> pin.abbr
       :K
 
       iex> pin = Sashite.Pin.parse!("+K^")

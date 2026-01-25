@@ -13,7 +13,7 @@ defmodule Sashite.Pin.ParserTest do
     test "parses uppercase letter K" do
       assert {:ok, result} = Parser.parse("K")
 
-      assert result.type == :K
+      assert result.abbr == :K
       assert result.side == :first
       assert result.state == :normal
       assert result.terminal == false
@@ -22,7 +22,7 @@ defmodule Sashite.Pin.ParserTest do
     test "parses lowercase letter k" do
       assert {:ok, result} = Parser.parse("k")
 
-      assert result.type == :K
+      assert result.abbr == :K
       assert result.side == :second
       assert result.state == :normal
       assert result.terminal == false
@@ -31,10 +31,10 @@ defmodule Sashite.Pin.ParserTest do
     test "parses all uppercase letters A-Z" do
       for letter <- ?A..?Z do
         input = <<letter>>
-        expected_type = String.to_atom(input)
+        expected_abbr = String.to_atom(input)
 
         assert {:ok, result} = Parser.parse(input)
-        assert result.type == expected_type
+        assert result.abbr == expected_abbr
         assert result.side == :first
       end
     end
@@ -42,10 +42,10 @@ defmodule Sashite.Pin.ParserTest do
     test "parses all lowercase letters a-z" do
       for letter <- ?a..?z do
         input = <<letter>>
-        expected_type = input |> String.upcase() |> String.to_atom()
+        expected_abbr = input |> String.upcase() |> String.to_atom()
 
         assert {:ok, result} = Parser.parse(input)
-        assert result.type == expected_type
+        assert result.abbr == expected_abbr
         assert result.side == :second
       end
     end
@@ -59,7 +59,7 @@ defmodule Sashite.Pin.ParserTest do
     test "parses enhanced uppercase +R" do
       assert {:ok, result} = Parser.parse("+R")
 
-      assert result.type == :R
+      assert result.abbr == :R
       assert result.side == :first
       assert result.state == :enhanced
       assert result.terminal == false
@@ -68,7 +68,7 @@ defmodule Sashite.Pin.ParserTest do
     test "parses enhanced lowercase +r" do
       assert {:ok, result} = Parser.parse("+r")
 
-      assert result.type == :R
+      assert result.abbr == :R
       assert result.side == :second
       assert result.state == :enhanced
     end
@@ -76,7 +76,7 @@ defmodule Sashite.Pin.ParserTest do
     test "parses diminished uppercase -P" do
       assert {:ok, result} = Parser.parse("-P")
 
-      assert result.type == :P
+      assert result.abbr == :P
       assert result.side == :first
       assert result.state == :diminished
     end
@@ -84,7 +84,7 @@ defmodule Sashite.Pin.ParserTest do
     test "parses diminished lowercase -p" do
       assert {:ok, result} = Parser.parse("-p")
 
-      assert result.type == :P
+      assert result.abbr == :P
       assert result.side == :second
       assert result.state == :diminished
     end
@@ -98,7 +98,7 @@ defmodule Sashite.Pin.ParserTest do
     test "parses terminal uppercase K^" do
       assert {:ok, result} = Parser.parse("K^")
 
-      assert result.type == :K
+      assert result.abbr == :K
       assert result.side == :first
       assert result.state == :normal
       assert result.terminal == true
@@ -107,7 +107,7 @@ defmodule Sashite.Pin.ParserTest do
     test "parses terminal lowercase k^" do
       assert {:ok, result} = Parser.parse("k^")
 
-      assert result.type == :K
+      assert result.abbr == :K
       assert result.side == :second
       assert result.terminal == true
     end
@@ -121,7 +121,7 @@ defmodule Sashite.Pin.ParserTest do
     test "parses enhanced terminal +K^" do
       assert {:ok, result} = Parser.parse("+K^")
 
-      assert result.type == :K
+      assert result.abbr == :K
       assert result.side == :first
       assert result.state == :enhanced
       assert result.terminal == true
@@ -130,7 +130,7 @@ defmodule Sashite.Pin.ParserTest do
     test "parses diminished terminal -k^" do
       assert {:ok, result} = Parser.parse("-k^")
 
-      assert result.type == :K
+      assert result.abbr == :K
       assert result.side == :second
       assert result.state == :diminished
       assert result.terminal == true
@@ -398,7 +398,7 @@ defmodule Sashite.Pin.ParserTest do
     end
 
     test "rejects map" do
-      assert Parser.valid?(%{type: :K}) == false
+      assert Parser.valid?(%{abbr: :K}) == false
     end
 
     test "rejects atom" do
@@ -419,7 +419,7 @@ defmodule Sashite.Pin.ParserTest do
 
         identifier =
           Identifier.new(
-            components.type,
+            components.abbr,
             components.side,
             components.state,
             terminal: components.terminal
@@ -435,7 +435,7 @@ defmodule Sashite.Pin.ParserTest do
 
         identifier =
           Identifier.new(
-            components.type,
+            components.abbr,
             components.side,
             components.state,
             terminal: components.terminal
@@ -451,7 +451,7 @@ defmodule Sashite.Pin.ParserTest do
 
         identifier =
           Identifier.new(
-            components.type,
+            components.abbr,
             components.side,
             components.state,
             terminal: components.terminal
@@ -467,7 +467,7 @@ defmodule Sashite.Pin.ParserTest do
 
         identifier =
           Identifier.new(
-            components.type,
+            components.abbr,
             components.side,
             components.state,
             terminal: components.terminal

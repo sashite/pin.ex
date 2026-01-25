@@ -9,7 +9,7 @@ defmodule Sashite.Pin.Constants do
   # Valid Values
   # ===========================================================================
 
-  @valid_types ~w(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z)a
+  @valid_abbrs ~w(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z)a
   @valid_sides ~w(first second)a
   @valid_states ~w(normal enhanced diminished)a
 
@@ -33,16 +33,16 @@ defmodule Sashite.Pin.Constants do
   # ===========================================================================
 
   @doc """
-  Returns the list of valid piece types.
+  Returns the list of valid piece name abbreviations.
 
   ## Examples
 
-      iex> Sashite.Pin.Constants.valid_types()
+      iex> Sashite.Pin.Constants.valid_abbrs()
       [:A, :B, :C, :D, :E, :F, :G, :H, :I, :J, :K, :L, :M, :N, :O, :P, :Q, :R, :S, :T, :U, :V, :W, :X, :Y, :Z]
 
   """
-  @spec valid_types() :: [atom()]
-  def valid_types, do: @valid_types
+  @spec valid_abbrs() :: [atom()]
+  def valid_abbrs, do: @valid_abbrs
 
   @doc """
   Returns the list of valid player sides.
@@ -141,19 +141,19 @@ defmodule Sashite.Pin.Constants do
   # ===========================================================================
 
   @doc """
-  Checks if a type is valid.
+  Checks if an abbreviation is valid.
 
   ## Examples
 
-      iex> Sashite.Pin.Constants.valid_type?(:K)
+      iex> Sashite.Pin.Constants.valid_abbr?(:K)
       true
 
-      iex> Sashite.Pin.Constants.valid_type?(:invalid)
+      iex> Sashite.Pin.Constants.valid_abbr?(:invalid)
       false
 
   """
-  @spec valid_type?(atom()) :: boolean()
-  def valid_type?(type), do: type in @valid_types
+  @spec valid_abbr?(atom()) :: boolean()
+  def valid_abbr?(abbr), do: abbr in @valid_abbrs
 
   @doc """
   Checks if a side is valid.

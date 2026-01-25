@@ -11,7 +11,7 @@ defmodule Sashite.PinTest do
     test "returns {:ok, identifier} for valid input" do
       assert {:ok, pin} = Sashite.Pin.parse("K")
       assert %Sashite.Pin.Identifier{} = pin
-      assert pin.type == :K
+      assert pin.abbr == :K
       assert pin.side == :first
       assert pin.state == :normal
       assert pin.terminal == false
@@ -19,7 +19,7 @@ defmodule Sashite.PinTest do
 
     test "returns {:ok, identifier} with all attributes" do
       assert {:ok, pin} = Sashite.Pin.parse("+K^")
-      assert pin.type == :K
+      assert pin.abbr == :K
       assert pin.side == :first
       assert pin.state == :enhanced
       assert pin.terminal == true
@@ -42,7 +42,7 @@ defmodule Sashite.PinTest do
     test "returns identifier for valid input" do
       pin = Sashite.Pin.parse!("K")
       assert %Sashite.Pin.Identifier{} = pin
-      assert pin.type == :K
+      assert pin.abbr == :K
     end
 
     test "returns identifier with all attributes" do

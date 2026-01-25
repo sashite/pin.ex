@@ -17,7 +17,7 @@ Add `sashite_pin` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:sashite_pin, "~> 2.0"}
+    {:sashite_pin, "~> 2.1"}
   ]
 end
 ```
@@ -31,7 +31,7 @@ Convert a PIN string into an `Identifier` struct.
 ```elixir
 # Standard parsing (returns {:ok, identifier} or {:error, reason})
 {:ok, pin} = Sashite.Pin.parse("K")
-pin.type       # => :K
+pin.abbr       # => :K
 pin.side       # => :first
 pin.state      # => :normal
 pin.terminal   # => false
@@ -84,23 +84,6 @@ Sashite.Pin.valid?("K^")       # => true
 Sashite.Pin.valid?("invalid")  # => false
 ```
 
-### Accessing Identifier Data
-
-```elixir
-{:ok, pin} = Sashite.Pin.parse("+K^")
-
-# Get attributes (direct struct access)
-pin.type       # => :K
-pin.side       # => :first
-pin.state      # => :enhanced
-pin.terminal   # => true
-
-# Get string components
-Sashite.Pin.Identifier.letter(pin)  # => "K"
-Sashite.Pin.Identifier.prefix(pin)  # => "+"
-Sashite.Pin.Identifier.suffix(pin)  # => "^"
-```
-
 ### Transformations
 
 All transformations return new immutable structs.
@@ -117,14 +100,14 @@ Sashite.Pin.Identifier.normalize(pin) |> Sashite.Pin.Identifier.to_string()  # =
 Sashite.Pin.Identifier.flip(pin) |> Sashite.Pin.Identifier.to_string()  # => "k"
 
 # Terminal transformations
-Sashite.Pin.Identifier.mark_terminal(pin) |> Sashite.Pin.Identifier.to_string()    # => "K^"
-Sashite.Pin.Identifier.unmark_terminal(pin) |> Sashite.Pin.Identifier.to_string()  # => "K"
+Sashite.Pin.Identifier.terminal(pin) |> Sashite.Pin.Identifier.to_string()      # => "K^"
+Sashite.Pin.Identifier.non_terminal(pin) |> Sashite.Pin.Identifier.to_string()  # => "K"
 
 # Attribute changes
-Sashite.Pin.Identifier.with_type(pin, :Q) |> Sashite.Pin.Identifier.to_string()       # => "Q"
-Sashite.Pin.Identifier.with_side(pin, :second) |> Sashite.Pin.Identifier.to_string()  # => "k"
-Sashite.Pin.Identifier.with_state(pin, :enhanced) |> Sashite.Pin.Identifier.to_string()    # => "+K"
-Sashite.Pin.Identifier.with_terminal(pin, true) |> Sashite.Pin.Identifier.to_string()      # => "K^"
+Sashite.Pin.Identifier.with_abbr(pin, :Q) |> Sashite.Pin.Identifier.to_string()        # => "Q"
+Sashite.Pin.Identifier.with_side(pin, :second) |> Sashite.Pin.Identifier.to_string()   # => "k"
+Sashite.Pin.Identifier.with_state(pin, :enhanced) |> Sashite.Pin.Identifier.to_string() # => "+K"
+Sashite.Pin.Identifier.with_terminal(pin, true) |> Sashite.Pin.Identifier.to_string()   # => "K^"
 ```
 
 ### Queries
@@ -146,7 +129,7 @@ pin.terminal  # => true
 
 # Comparison queries
 {:ok, other} = Sashite.Pin.parse("k")
-Sashite.Pin.Identifier.same_type?(pin, other)      # => true
+Sashite.Pin.Identifier.same_abbr?(pin, other)      # => true
 Sashite.Pin.Identifier.same_side?(pin, other)      # => false
 Sashite.Pin.Identifier.same_state?(pin, other)     # => false
 Sashite.Pin.Identifier.same_terminal?(pin, other)  # => false
@@ -160,7 +143,7 @@ Sashite.Pin.Identifier.same_terminal?(pin, other)  # => false
 # Identifier represents a parsed PIN with all attributes.
 defmodule Sashite.Pin.Identifier do
   @type t :: %__MODULE__{
-    type: atom(),      # :A to :Z
+    abbr: atom(),      # :A to :Z
     side: :first | :second,
     state: :normal | :enhanced | :diminished,
     terminal: boolean()
@@ -169,7 +152,7 @@ defmodule Sashite.Pin.Identifier do
   # Creates an Identifier from attributes.
   # Raises ArgumentError if attributes are invalid.
   @spec new(atom(), atom(), atom(), keyword()) :: t()
-  def new(type, side, state \\ :normal, opts \\ [])
+  def new(abbr, side, state \\ :normal, opts \\ [])
 
   # Returns the PIN string representation.
   @spec to_string(t()) :: String.t()
@@ -180,7 +163,7 @@ end
 ### Constants
 
 ```elixir
-Sashite.Pin.Constants.valid_types()       # => [:A, :B, ..., :Z]
+Sashite.Pin.Constants.valid_abbrs()       # => [:A, :B, ..., :Z]
 Sashite.Pin.Constants.valid_sides()       # => [:first, :second]
 Sashite.Pin.Constants.valid_states()      # => [:normal, :enhanced, :diminished]
 Sashite.Pin.Constants.max_string_length() # => 3
@@ -219,11 +202,11 @@ All transformations return new `%Sashite.Pin.Identifier{}` structs:
 @spec flip(t()) :: t()
 
 # Terminal transformations
-@spec mark_terminal(t()) :: t()
-@spec unmark_terminal(t()) :: t()
+@spec terminal(t()) :: t()
+@spec non_terminal(t()) :: t()
 
 # Attribute changes
-@spec with_type(t(), atom()) :: t()
+@spec with_abbr(t(), atom()) :: t()
 @spec with_side(t(), atom()) :: t()
 @spec with_state(t(), atom()) :: t()
 @spec with_terminal(t(), boolean()) :: t()
@@ -243,7 +226,7 @@ Parsing returns `{:error, reason}` tuples with these atoms:
 
 ## Design Principles
 
-- **Bounded values**: Explicit validation of types, sides, states
+- **Bounded values**: Explicit validation of abbreviations, sides, and states
 - **Functional style**: Pure functions, immutable structs
 - **Elixir idioms**: `{:ok, result}` / `{:error, reason}` tuples, bang functions
 - **Pattern matching**: Structs enable pattern matching in function heads

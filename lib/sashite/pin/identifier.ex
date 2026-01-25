@@ -3,8 +3,8 @@ defmodule Sashite.Pin.Identifier do
   Represents a parsed PIN (Piece Identifier Notation) identifier.
 
   An Identifier encodes four attributes of a piece:
-  - Type: the piece type (A-Z as uppercase atom)
-  - Side: the player side (`:first` or `:second`)
+  - Abbr: the piece name abbreviation (A-Z as uppercase atom)
+  - Side: the piece side (`:first` or `:second`)
   - State: the piece state (`:normal`, `:enhanced`, or `:diminished`)
   - Terminal: whether the piece is terminal (`true` or `false`)
 
@@ -13,7 +13,7 @@ defmodule Sashite.Pin.Identifier do
   ## Examples
 
       iex> pin = Sashite.Pin.Identifier.new(:K, :first)
-      iex> pin.type
+      iex> pin.abbr
       :K
       iex> pin.side
       :first
@@ -26,11 +26,11 @@ defmodule Sashite.Pin.Identifier do
 
   alias Sashite.Pin.Constants
 
-  @enforce_keys [:type, :side, :state, :terminal]
-  defstruct [:type, :side, :state, :terminal]
+  @enforce_keys [:abbr, :side, :state, :terminal]
+  defstruct [:abbr, :side, :state, :terminal]
 
   @type t :: %__MODULE__{
-          type: atom(),
+          abbr: atom(),
           side: :first | :second,
           state: :normal | :enhanced | :diminished,
           terminal: boolean()
@@ -45,8 +45,8 @@ defmodule Sashite.Pin.Identifier do
 
   ## Parameters
 
-  - `type` - Piece type (`:A` to `:Z`)
-  - `side` - Player side (`:first` or `:second`)
+  - `abbr` - Piece name abbreviation (`:A` to `:Z`)
+  - `side` - Piece side (`:first` or `:second`)
   - `state` - Piece state (`:normal`, `:enhanced`, or `:diminished`), defaults to `:normal`
   - `opts` - Keyword options:
     - `:terminal` - Terminal status (`true` or `false`), defaults to `false`
@@ -54,13 +54,13 @@ defmodule Sashite.Pin.Identifier do
   ## Examples
 
       iex> Sashite.Pin.Identifier.new(:K, :first)
-      %Sashite.Pin.Identifier{type: :K, side: :first, state: :normal, terminal: false}
+      %Sashite.Pin.Identifier{abbr: :K, side: :first, state: :normal, terminal: false}
 
       iex> Sashite.Pin.Identifier.new(:R, :second, :enhanced)
-      %Sashite.Pin.Identifier{type: :R, side: :second, state: :enhanced, terminal: false}
+      %Sashite.Pin.Identifier{abbr: :R, side: :second, state: :enhanced, terminal: false}
 
       iex> Sashite.Pin.Identifier.new(:K, :first, :normal, terminal: true)
-      %Sashite.Pin.Identifier{type: :K, side: :first, state: :normal, terminal: true}
+      %Sashite.Pin.Identifier{abbr: :K, side: :first, state: :normal, terminal: true}
 
   ## Raises
 
@@ -68,16 +68,16 @@ defmodule Sashite.Pin.Identifier do
 
   """
   @spec new(atom(), atom(), atom(), keyword()) :: t()
-  def new(type, side, state \\ :normal, opts \\ []) do
+  def new(abbr, side, state \\ :normal, opts \\ []) do
     terminal = Keyword.get(opts, :terminal, false)
 
-    validate_type!(type)
+    validate_abbr!(abbr)
     validate_side!(side)
     validate_state!(state)
     validate_terminal!(terminal)
 
     %__MODULE__{
-      type: type,
+      abbr: abbr,
       side: side,
       state: state,
       terminal: terminal
@@ -126,12 +126,12 @@ defmodule Sashite.Pin.Identifier do
 
   """
   @spec letter(t()) :: String.t()
-  def letter(%__MODULE__{type: type, side: :first}) do
-    Atom.to_string(type)
+  def letter(%__MODULE__{abbr: abbr, side: :first}) do
+    Atom.to_string(abbr)
   end
 
-  def letter(%__MODULE__{type: type, side: :second}) do
-    type |> Atom.to_string() |> String.downcase()
+  def letter(%__MODULE__{abbr: abbr, side: :second}) do
+    abbr |> Atom.to_string() |> String.downcase()
   end
 
   @doc """
@@ -272,15 +272,15 @@ defmodule Sashite.Pin.Identifier do
   ## Examples
 
       iex> pin = Sashite.Pin.Identifier.new(:K, :first)
-      iex> terminal = Sashite.Pin.Identifier.mark_terminal(pin)
-      iex> terminal.terminal
+      iex> term = Sashite.Pin.Identifier.terminal(pin)
+      iex> term.terminal
       true
 
   """
-  @spec mark_terminal(t()) :: t()
-  def mark_terminal(%__MODULE__{terminal: true} = identifier), do: identifier
+  @spec terminal(t()) :: t()
+  def terminal(%__MODULE__{terminal: true} = identifier), do: identifier
 
-  def mark_terminal(%__MODULE__{} = identifier) do
+  def terminal(%__MODULE__{} = identifier) do
     %{identifier | terminal: true}
   end
 
@@ -290,15 +290,15 @@ defmodule Sashite.Pin.Identifier do
   ## Examples
 
       iex> pin = Sashite.Pin.Identifier.new(:K, :first, :normal, terminal: true)
-      iex> non_terminal = Sashite.Pin.Identifier.unmark_terminal(pin)
-      iex> non_terminal.terminal
+      iex> non_term = Sashite.Pin.Identifier.non_terminal(pin)
+      iex> non_term.terminal
       false
 
   """
-  @spec unmark_terminal(t()) :: t()
-  def unmark_terminal(%__MODULE__{terminal: false} = identifier), do: identifier
+  @spec non_terminal(t()) :: t()
+  def non_terminal(%__MODULE__{terminal: false} = identifier), do: identifier
 
-  def unmark_terminal(%__MODULE__{} = identifier) do
+  def non_terminal(%__MODULE__{} = identifier) do
     %{identifier | terminal: false}
   end
 
@@ -307,26 +307,26 @@ defmodule Sashite.Pin.Identifier do
   # ===========================================================================
 
   @doc """
-  Returns a new Identifier with a different type.
+  Returns a new Identifier with a different abbreviation.
 
   ## Examples
 
       iex> pin = Sashite.Pin.Identifier.new(:K, :first)
-      iex> queen = Sashite.Pin.Identifier.with_type(pin, :Q)
-      iex> queen.type
+      iex> queen = Sashite.Pin.Identifier.with_abbr(pin, :Q)
+      iex> queen.abbr
       :Q
 
   ## Raises
 
-  - `ArgumentError` if the type is invalid
+  - `ArgumentError` if the abbreviation is invalid
 
   """
-  @spec with_type(t(), atom()) :: t()
-  def with_type(%__MODULE__{type: type} = identifier, type), do: identifier
+  @spec with_abbr(t(), atom()) :: t()
+  def with_abbr(%__MODULE__{abbr: abbr} = identifier, abbr), do: identifier
 
-  def with_type(%__MODULE__{} = identifier, new_type) do
-    validate_type!(new_type)
-    %{identifier | type: new_type}
+  def with_abbr(%__MODULE__{} = identifier, new_abbr) do
+    validate_abbr!(new_abbr)
+    %{identifier | abbr: new_abbr}
   end
 
   @doc """
@@ -381,8 +381,8 @@ defmodule Sashite.Pin.Identifier do
   ## Examples
 
       iex> pin = Sashite.Pin.Identifier.new(:K, :first)
-      iex> terminal = Sashite.Pin.Identifier.with_terminal(pin, true)
-      iex> terminal.terminal
+      iex> term = Sashite.Pin.Identifier.with_terminal(pin, true)
+      iex> term.terminal
       true
 
   ## Raises
@@ -501,24 +501,24 @@ defmodule Sashite.Pin.Identifier do
   # ===========================================================================
 
   @doc """
-  Checks if two Identifiers have the same type.
+  Checks if two Identifiers have the same abbreviation.
 
   ## Examples
 
       iex> pin1 = Sashite.Pin.Identifier.new(:K, :first)
       iex> pin2 = Sashite.Pin.Identifier.new(:K, :second)
-      iex> Sashite.Pin.Identifier.same_type?(pin1, pin2)
+      iex> Sashite.Pin.Identifier.same_abbr?(pin1, pin2)
       true
 
       iex> pin1 = Sashite.Pin.Identifier.new(:K, :first)
       iex> pin2 = Sashite.Pin.Identifier.new(:Q, :first)
-      iex> Sashite.Pin.Identifier.same_type?(pin1, pin2)
+      iex> Sashite.Pin.Identifier.same_abbr?(pin1, pin2)
       false
 
   """
-  @spec same_type?(t(), t()) :: boolean()
-  def same_type?(%__MODULE__{type: type}, %__MODULE__{type: type}), do: true
-  def same_type?(%__MODULE__{}, %__MODULE__{}), do: false
+  @spec same_abbr?(t(), t()) :: boolean()
+  def same_abbr?(%__MODULE__{abbr: abbr}, %__MODULE__{abbr: abbr}), do: true
+  def same_abbr?(%__MODULE__{}, %__MODULE__{}), do: false
 
   @doc """
   Checks if two Identifiers have the same side.
@@ -584,9 +584,9 @@ defmodule Sashite.Pin.Identifier do
   # Private Validation
   # ===========================================================================
 
-  defp validate_type!(type) do
-    unless Constants.valid_type?(type) do
-      raise ArgumentError, "type must be an atom from :A to :Z"
+  defp validate_abbr!(abbr) do
+    unless Constants.valid_abbr?(abbr) do
+      raise ArgumentError, "abbr must be an atom from :A to :Z"
     end
   end
 
